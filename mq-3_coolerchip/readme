@@ -1,1 +1,2 @@
 
+A Node.js server running on a Raspberry Pi 4, designed to monitor and display alcohol concentration and temperature data in real-time. The server also provides functionality to control the on/off state of a cooler chip and fans, allowing users to manage these hardware components directly from the web interface.
