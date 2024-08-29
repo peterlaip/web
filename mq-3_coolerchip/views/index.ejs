@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="2">
+    <title>酒精濃度監控系統</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+        }
+        .left, .right {
+            width: 48%;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="left">
+        <!-- 當前酒精濃度 -->
+        <div class="section">
+            <h2>當前酒精濃度</h2>
+            <p><%= currentAlcoholConcentration.toFixed(2) %> mg/L</p>
+        </div>
+
+        <!-- 酒精濃度記錄圖表 -->
+        <div class="section">
+            <h2>酒精濃度記錄圖表</h2>
+            <canvas id="alcoholChart"></canvas>
+            <script>
+                const ctx = document.getElementById('alcoholChart').getContext('2d');
+                const alcoholChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: <%- JSON.stringify(alcoholHistory.labels) %>,
+                        datasets: [{
+                            label: '酒精濃度 (mg/L)',
+                            data: <%- JSON.stringify(alcoholHistory.data) %>,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: true,
+                        }]
+                    },
+                    options: {
+
+                        animation: {
+                                   duration: 0 // 將動畫持續時間設為 0
+                                   },
+
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'minute',
+
+                                    min: new Date().setHours(new Date().getHours() - 1),  // 設定為一小時前
+                                    max: new Date(),  // 設定為當前時間
+
+
+                                    displayFormats: {
+                                        minute: 'HH:mm'
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: '時間'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: '酒精濃度 (mg/L)'
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        </div>
+    </div>
+
+    <div class="right">
+        <!-- 當前溫度 -->
+        <div class="section">
+            <h2>當前溫度</h2>
+            <p><%= currentTemperature.toFixed(2) %> °C</p>
+        </div>
+
+        <!-- 設定溫度 -->
+        <div class="section">
+            <h2>設定溫度</h2>
+            <p><%= userTemperature.toFixed(2) %> °C</p>
+            <form action="/update_temperature" method="post">
+                <input type="number" name="newTemperature" step="0.1" value="<%= userTemperature %>">
+                <button type="submit">更新溫度</button>
+            </form>
+        </div>
+
+        <!-- 風扇狀態 -->
+        <div class="section">
+            <h2>風扇狀態</h2>
+            <p><%= fanStatus.status === 'on' ? '開啟' : '關閉' %></p>
+            <form action="/toggle_fans" method="post">
+                <button type="submit" name="action" value="on">開啟風扇</button>
+                <button type="submit" name="action" value="off">關閉風扇</button>
+            </form>
+        </div>
+
+        <!-- 致冷晶片狀態 -->
+        <div class="section">
+            <h2>致冷晶片狀態</h2>
+            <p><%= coolerChipStatus.status === 'on' ? '開啟' : '關閉' %></p>
+            <form action="/toggle_cooler_chip" method="post">
+                <button type="submit" name="action" value="on">開啟致冷晶片</button>
+                <button type="submit" name="action" value="off">關閉致冷晶片</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+
